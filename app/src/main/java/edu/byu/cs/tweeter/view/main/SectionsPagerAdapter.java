@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import edu.byu.cs.tweeter.R;
+import edu.byu.cs.tweeter.view.main.follower.FollowerFragment;
 import edu.byu.cs.tweeter.view.main.following.FollowingFragment;
 
 /**
@@ -18,6 +19,7 @@ import edu.byu.cs.tweeter.view.main.following.FollowingFragment;
 class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     private static final int FOLLOWING_FRAGMENT_POSITION = 2;
+    private static final int FOLLOWER_FRAGMENT_POSITION = 3;
 
     @StringRes
     private static final int[] TAB_TITLES = new int[]{R.string.feedTabTitle, R.string.storyTabTitle, R.string.followingTabTitle, R.string.followersTabTitle};
@@ -32,7 +34,11 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         if (position == FOLLOWING_FRAGMENT_POSITION) {
             return new FollowingFragment();
-        } else {
+        }
+        else if (position == FOLLOWER_FRAGMENT_POSITION) {
+            return new FollowerFragment();
+        }
+        else {
             return PlaceholderFragment.newInstance(position + 1);
         }
     }

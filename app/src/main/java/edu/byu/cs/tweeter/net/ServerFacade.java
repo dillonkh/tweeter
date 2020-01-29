@@ -7,7 +7,9 @@ import java.util.Map;
 
 import edu.byu.cs.tweeter.model.domain.Follow;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.net.request.FollowerRequest;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
 
 public class ServerFacade {
@@ -41,6 +43,35 @@ public class ServerFacade {
         }
 
         return new FollowingResponse(responseFollowees, hasMorePages);
+    }
+
+    public FollowerResponse getFollowers(FollowerRequest request) {
+
+        assert request.getLimit() >= 0;
+        assert request.getFollowing() != null;
+
+        if(followeesByFollower == null) {
+            followeesByFollower = initializeFollowees();
+        }
+
+        List<User> allFollowees = followeesByFollower.get(request.getFollowing());
+        List<User> responseFollowees = new ArrayList<>(request.getLimit());
+
+        boolean hasMorePages = false;
+
+        if(request.getLimit() > 0) {
+            if (allFollowees != null) {
+                int followeesIndex = getFolloweesStartingIndex(request.getLastFollowee(), allFollowees);
+
+                for(int limitCounter = 0; followeesIndex < allFollowees.size() && limitCounter < request.getLimit(); followeesIndex++, limitCounter++) {
+                    responseFollowees.add(allFollowees.get(followeesIndex));
+                }
+
+                hasMorePages = followeesIndex < allFollowees.size();
+            }
+        }
+
+        return new FollowerResponse(responseFollowees, hasMorePages);
     }
 
     private int getFolloweesStartingIndex(User lastFollowee, List<User> allFollowees) {
