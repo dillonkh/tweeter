@@ -30,7 +30,8 @@
                         android:layout_height="wrap_content"
                         android:text="Sign In"
                         android:layout_gravity="center"
-                        android:textSize="24dp">
+                        android:textSize="24dp"
+                        android:layout_marginBottom="20dp">
 
                     </TextView>
 
@@ -38,13 +39,16 @@
                         android:layout_width="300dp"
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
-                        android:id="@+id/tempID">
+                        android:id="@+id/handleInput"
+                        android:hint="\@handle">
 
                     </EditText>
                     <EditText
                         android:layout_width="300dp"
                         android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true">
+                        android:layout_centerHorizontal="true"
+                        android:id="@+id/passwordInput"
+                        android:hint="Password">
 
                     </EditText>
 
@@ -53,8 +57,15 @@
                         android:layout_height="wrap_content"
                         android:text="sign in"
                         android:layout_gravity="center">
-
                     </Button>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Don't have an account? Sign Up"
+                        android:clickable="true"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="25dp"/>
 
                 </LinearLayout>
             </RelativeLayout>
