@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -11,24 +12,37 @@
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:minHeight="?actionBarSize"
-            android:padding="@dimen/appbar_padding"
-            android:text="@string/app_name"
-            android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minHeight="?actionBarSize"
+                android:padding="@dimen/appbar_padding"
+                android:text="@string/app_name"
+                android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
+
+            <ImageView
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:src="@drawable/ic_settings"
+                android:layout_alignParentRight="true"
+                android:layout_margin="5dp"
+                android:id="@+id/optionDots"
+                android:clickable="true"/>
+        </RelativeLayout>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/userImage"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:layout_centerVertical="true"
                 android:layout_alignParentStart="true" />
 
@@ -55,6 +69,18 @@
 
             </LinearLayout>
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:background="@color/colorAccent"
+                android:layout_marginHorizontal="15dp"
+                android:id="@+id/followButton"
+                android:text="Follow">
+
+            </Button>
+
         </RelativeLayout>
 
 
@@ -70,6 +96,112 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="100dp"
+        app:cardElevation="20dp"
+        android:id="@+id/makeTweetCard"
+        android:backgroundTint="#EE2DB6A9"
+        android:visibility="invisible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:id="@+id/tweetCardCancel"
+                    android:clickable="true"
+                    android:layout_margin="10dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:textSize="18dp">
+
+                </TextView>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tweet"
+                    android:backgroundTint="#29524B"
+                    android:textColor="#FFFFFF"
+                    android:layout_margin="10dp"
+                    android:layout_alignParentRight="true"
+                    android:id="@+id/sendTweetButton"
+                    android:layout_centerVertical="true">
+
+                </Button>
+            </RelativeLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Whats happening?"
+                android:layout_margin="10dp"
+                android:background="@null">
+
+            </com.google.android.material.textfield.TextInputEditText>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="45dp"
+        app:cardElevation="20dp"
+        android:id="@+id/settingsCard"
+        android:backgroundTint="#EE2DB6A9"
+        android:visibility="invisible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:id="@+id/optionsCardCancel"
+                    android:clickable="true"
+                    android:layout_margin="10dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:textSize="18dp">
+
+                </TextView>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sign Out"
+                    android:id="@+id/signOutButton"
+                    android:backgroundTint="#29524B"
+                    android:textColor="#FFFFFF"
+                    android:layout_margin="10dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true">
+
+                </Button>
+            </RelativeLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
