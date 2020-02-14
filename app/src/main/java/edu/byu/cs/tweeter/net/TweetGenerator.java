@@ -12,13 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import edu.byu.cs.tweeter.model.domain.Tweet;
 import edu.byu.cs.tweeter.model.domain.User;
 
 /**
  * A temporary class that generates and returns {@link User} objects. This class may be removed when
  * the server is created and the ServerFacade no longer needs to return dummy data.
  */
-public class UserGenerator {
+public class TweetGenerator {
 
     private static final String MALE_NAMES_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/json/mnames.json";
     private static final String FEMALE_NAMES_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/json/fnames.json";
@@ -31,21 +32,21 @@ public class UserGenerator {
     static final String MALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
     private static final String FEMALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/daisy_duck.png";
 
-    private static UserGenerator instance;
+    private static TweetGenerator instance;
 
     /**
      * A private constructor that ensures no instances of this class can be created.
      */
-    private UserGenerator() {}
+    private TweetGenerator() {}
 
     /**
      * Returns the singleton instance of the class
      *
      * @return the instance.
      */
-    public static UserGenerator getInstance() {
+    public static TweetGenerator getInstance() {
         if(instance == null) {
-            instance = new UserGenerator();
+            instance = new TweetGenerator();
         }
 
         return instance;
@@ -99,9 +100,9 @@ public class UserGenerator {
 
             connection.disconnect();
         } finally {
-           if(connection != null) {
-               connection.disconnect();
-           }
+            if(connection != null) {
+                connection.disconnect();
+            }
         }
 
         return names == null ? null : names.getNames();
@@ -113,35 +114,36 @@ public class UserGenerator {
      * @param count the number of users to generate.
      * @return the generated users.
      */
-    public List<User> generateUsers(int count) {
+    public List<Tweet> generateTweets(int count, User user) {
 
-        List<User> users = new ArrayList<>(count);
+        List<Tweet> tweets = new ArrayList<>(count);
 
         Random random = new Random();
 
-        while(users.size() < count) {
+        while(tweets.size() < count) {
             // Randomly determine if the user will be male or female and generate a gender
             // specific first name
-            String firstName;
-            String imageULR;
-            if(random.nextInt(2) == 0) {
-                firstName = maleNames[random.nextInt(maleNames.length)];
-                imageULR = MALE_IMAGE_URL;
-            } else {
-                firstName = femaleNames[random.nextInt(femaleNames.length)];
-                imageULR = FEMALE_IMAGE_URL;
-            }
-
-            String lastName = surnames[random.nextInt(surnames.length)];
-            User user = new User(firstName, lastName, imageULR);
-            user.makeTweets(TweetGenerator.getInstance().generateTweets(10, user));
-
-            if(!users.contains(user)) {
-                users.add(user);
-            }
+            Tweet tweet = new Tweet(user,"This is a tweet!", "this is a url");
+            tweets.add(tweet);
+//            String firstName;
+//            String imageULR;
+//            if(random.nextInt(2) == 0) {
+//                firstName = maleNames[random.nextInt(maleNames.length)];
+//                imageULR = MALE_IMAGE_URL;
+//            } else {
+//                firstName = femaleNames[random.nextInt(femaleNames.length)];
+//                imageULR = FEMALE_IMAGE_URL;
+//            }
+//
+//            String lastName = surnames[random.nextInt(surnames.length)];
+//            User user = new User(firstName, lastName, imageULR);
+//
+//            if(!users.contains(user)) {
+//                users.add(user);
+//            }
         }
 
-        return users;
+        return tweets;
     }
 
     /**

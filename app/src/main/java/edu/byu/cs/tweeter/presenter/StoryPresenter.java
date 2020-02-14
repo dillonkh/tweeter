@@ -1,9 +1,10 @@
 package edu.byu.cs.tweeter.presenter;
 
-import edu.byu.cs.tweeter.model.domain.Tweet;
 import edu.byu.cs.tweeter.model.services.StoryService;
+import edu.byu.cs.tweeter.net.request.StoryRequest;
+import edu.byu.cs.tweeter.net.response.StoryResponse;
 
-public class MainPresenter extends Presenter {
+public class StoryPresenter extends Presenter {
 
     private final View view;
 
@@ -12,13 +13,14 @@ public class MainPresenter extends Presenter {
      */
     public interface View {
         // If needed, Specify methods here that will be called on the view in response to model updates
+        void listChanged();
     }
 
-    public MainPresenter(View view) {
+    public StoryPresenter(View view) {
         this.view = view;
     }
 
-    public void addTweet(Tweet tweet) {
-        StoryService.getInstance().addTweet(tweet);
+    public StoryResponse getTweets(StoryRequest request) {
+        return StoryService.getInstance().getTweets(request);
     }
 }
