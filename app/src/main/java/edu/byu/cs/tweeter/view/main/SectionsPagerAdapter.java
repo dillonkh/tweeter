@@ -9,8 +9,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import edu.byu.cs.tweeter.R;
+import edu.byu.cs.tweeter.view.main.feed.FeedFragment;
 import edu.byu.cs.tweeter.view.main.follower.FollowerFragment;
 import edu.byu.cs.tweeter.view.main.following.FollowingFragment;
+import edu.byu.cs.tweeter.view.main.story.StoryFragment;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -18,6 +20,8 @@ import edu.byu.cs.tweeter.view.main.following.FollowingFragment;
  */
 class SectionsPagerAdapter extends FragmentPagerAdapter {
 
+    private static final int FEED_FRAGMENT_POSITION = 0;
+    private static final int STORY_FRAGMENT_POSITION = 1;
     private static final int FOLLOWING_FRAGMENT_POSITION = 2;
     private static final int FOLLOWER_FRAGMENT_POSITION = 3;
 
@@ -25,18 +29,51 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
     private static final int[] TAB_TITLES = new int[]{R.string.feedTabTitle, R.string.storyTabTitle, R.string.followingTabTitle, R.string.followersTabTitle};
     private final Context mContext;
 
+    private final FollowerFragment followerFragment;
+    private final FollowingFragment followingFragment;
+    private final StoryFragment storyFragment;
+    private final FeedFragment feedFragment;
+
+
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         mContext = context;
+        followerFragment = new FollowerFragment();
+        followingFragment = new FollowingFragment();
+        storyFragment = new StoryFragment();
+        feedFragment = new FeedFragment();
+    }
+
+    public FollowerFragment getFollowerFragment() {
+        return followerFragment;
+    }
+
+    public FollowingFragment getFollowingFragment() {
+        return followingFragment;
+    }
+
+    public StoryFragment getStoryFragment() {
+        return storyFragment;
+    }
+
+    public FeedFragment getFeedFragment() {
+        return feedFragment;
     }
 
     @Override
     public Fragment getItem(int position) {
+
         if (position == FOLLOWING_FRAGMENT_POSITION) {
-            return new FollowingFragment();
+            return followingFragment;
         }
         else if (position == FOLLOWER_FRAGMENT_POSITION) {
-            return new FollowerFragment();
+            return followerFragment;
+        }
+        else if (position == STORY_FRAGMENT_POSITION) {
+            return storyFragment;
+        }
+        else if (position == FEED_FRAGMENT_POSITION) {
+            return feedFragment;
         }
         else {
             return PlaceholderFragment.newInstance(position + 1);

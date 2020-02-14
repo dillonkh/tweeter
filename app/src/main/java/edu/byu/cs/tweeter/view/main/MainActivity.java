@@ -8,24 +8,33 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import edu.byu.cs.tweeter.R;
+import edu.byu.cs.tweeter.model.domain.Tweet;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.net.response.StoryResponse;
 import edu.byu.cs.tweeter.presenter.MainPresenter;
+import edu.byu.cs.tweeter.presenter.StoryPresenter;
+import edu.byu.cs.tweeter.view.asyncTasks.GetStoryTask;
 import edu.byu.cs.tweeter.view.asyncTasks.LoadImageTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
+import edu.byu.cs.tweeter.view.main.feed.FeedFragment;
+import edu.byu.cs.tweeter.view.main.story.StoryFragment;
 
 public class MainActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View {
 
     private MainPresenter presenter;
+    private StoryPresenter storyPresenter;
     private User user;
     private ImageView userImageView;
     private boolean following = true; // TODO: this should come from the user itself
@@ -36,15 +45,11 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        presenter = new MainPresenter(this);
-
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
-
-//        theView =
 
         ImageView optionDots = findViewById(R.id.optionDots);
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -56,13 +61,8 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         Button sendTweetButton = findViewById(R.id.sendTweetButton);
         final Button followButton = findViewById(R.id.followButton);
 
+        final StoryFragment storyFragment = sectionsPagerAdapter.getStoryFragment();
 
-        sendTweetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(view.getContext(),"TODO: implement send tweet", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         followButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,7 +117,23 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
 
         userImageView = findViewById(R.id.userImage);
 
+        presenter = new MainPresenter(this);
         user = presenter.getCurrentUser();
+
+        sendTweetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Toast.makeText(view.getContext(),"TODO: implement send tweet", Toast.LENGTH_SHORT).show();
+                EditText text = (EditText)findViewById(R.id.tweetMessage);
+                String message = text.getText().toString();
+                Tweet tweet = new Tweet(presenter.getCurrentUser(), message, "make URL");
+                presenter.addTweet(tweet);
+                storyFragment.listChanged();
+                Toast.makeText(view.getContext(),"Tweet added", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
 
         // Asynchronously load the user's image
         LoadImageTask loadImageTask = new LoadImageTask(this);
