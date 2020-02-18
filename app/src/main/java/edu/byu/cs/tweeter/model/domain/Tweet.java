@@ -2,6 +2,9 @@ package edu.byu.cs.tweeter.model.domain;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class Tweet implements Comparable<Tweet> {
@@ -10,11 +13,17 @@ public class Tweet implements Comparable<Tweet> {
     private final User user;
     private final String message;
     private final String url;
+    private final String timeStamp;
+    private final LocalDateTime now;
 
-    public Tweet(@NotNull User user, @NotNull String message, @NotNull String url) {
+    public Tweet(@NotNull User user, @NotNull String message, String url) {
         this.user = user;
         this.message = message;
         this.url = url;
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        this.now = LocalDateTime.now();
+        this.timeStamp = dtf.format(now);
+
     }
 
     public User getUser() {
@@ -27,6 +36,14 @@ public class Tweet implements Comparable<Tweet> {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public LocalDateTime getNow() {
+        return now;
     }
 
     @Override
@@ -54,6 +71,6 @@ public class Tweet implements Comparable<Tweet> {
 
     @Override
     public int compareTo(Tweet tweet) {
-        return this.getMessage().compareTo(tweet.getMessage());
+        return this.now.compareTo(tweet.getNow());
     }
 }

@@ -16,15 +16,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
+            <androidx.appcompat.widget.Toolbar
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:minHeight="?actionBarSize"
-                android:padding="@dimen/appbar_padding"
-                android:text="@string/app_name"
-                android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
+                android:id="@+id/userviewToolbar"/>
+
+<!--            <TextView-->
+<!--                android:id="@+id/title"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="center"-->
+<!--                android:minHeight="?actionBarSize"-->
+<!--                android:padding="@dimen/appbar_padding"-->
+<!--                android:text="@string/app_name"-->
+<!--                android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />-->
 
             <ImageView
                 android:layout_width="42dp"
@@ -69,17 +74,17 @@
 
             </LinearLayout>
 
-<!--            <Button-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="30dp"-->
-<!--                android:layout_centerVertical="true"-->
-<!--                android:layout_alignParentRight="true"-->
-<!--                android:background="@color/colorAccent"-->
-<!--                android:layout_marginHorizontal="15dp"-->
-<!--                android:id="@+id/followButton"-->
-<!--                android:text="Follow">-->
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:background="@color/colorAccent"
+                android:layout_marginHorizontal="15dp"
+                android:id="@+id/followButton"
+                android:text="Follow">
 
-<!--            </Button>-->
+            </Button>
 
         </RelativeLayout>
 
@@ -89,6 +94,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager.widget.ViewPager

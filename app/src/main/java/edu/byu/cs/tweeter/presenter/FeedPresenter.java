@@ -2,7 +2,9 @@ package edu.byu.cs.tweeter.presenter;
 
 import edu.byu.cs.tweeter.model.services.FeedService;
 import edu.byu.cs.tweeter.net.request.FeedRequest;
+import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.FeedResponse;
+import edu.byu.cs.tweeter.net.response.UserResponse;
 
 public class FeedPresenter extends Presenter {
 
@@ -13,6 +15,7 @@ public class FeedPresenter extends Presenter {
      */
     public interface View {
         // If needed, Specify methods here that will be called on the view in response to model updates
+        void listChanged();
     }
 
     public FeedPresenter(View view) {
@@ -21,5 +24,9 @@ public class FeedPresenter extends Presenter {
 
     public FeedResponse getTweets(FeedRequest request) {
         return FeedService.getInstance().getTweets(request);
+    }
+
+    public UserResponse getUser(UserRequest request) {
+        return FeedService.getInstance().getUser(request);
     }
 }

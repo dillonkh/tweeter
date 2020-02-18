@@ -29,10 +29,10 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
     private static final int[] TAB_TITLES = new int[]{R.string.feedTabTitle, R.string.storyTabTitle, R.string.followingTabTitle, R.string.followersTabTitle};
     private final Context mContext;
 
-    private final FollowerFragment followerFragment;
-    private final FollowingFragment followingFragment;
-    private final StoryFragment storyFragment;
-    private final FeedFragment feedFragment;
+    private FollowerFragment followerFragment;
+    private FollowingFragment followingFragment;
+    private StoryFragment storyFragment;
+    private FeedFragment feedFragment;
 
 
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
@@ -57,7 +57,8 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
     }
 
     public FeedFragment getFeedFragment() {
-        return feedFragment;
+//        feedFragm
+        return new FeedFragment();
     }
 
     @Override

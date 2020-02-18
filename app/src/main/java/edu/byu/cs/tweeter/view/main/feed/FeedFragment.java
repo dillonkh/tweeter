@@ -1,5 +1,6 @@
 package edu.byu.cs.tweeter.view.main.feed;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
@@ -24,10 +25,14 @@ import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.Tweet;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.request.FeedRequest;
+import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.FeedResponse;
 import edu.byu.cs.tweeter.presenter.FeedPresenter;
+import edu.byu.cs.tweeter.presenter.MainPresenter;
 import edu.byu.cs.tweeter.view.asyncTasks.GetFeedTask;
+import edu.byu.cs.tweeter.view.asyncTasks.GetUserTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
+import edu.byu.cs.tweeter.view.main.UserViewActivity;
 
 public class FeedFragment extends Fragment implements FeedPresenter.View {
 
@@ -40,10 +45,12 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
 
     private FeedRecyclerViewAdapter feedRecyclerViewAdapter;
 
+    private View view;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_feed, container, false);
+        view = inflater.inflate(R.layout.fragment_feed, container, false);
 
         presenter = new FeedPresenter(this);
 
@@ -61,25 +68,39 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
     }
 
 
+    @Override
+    public void listChanged() {
+        feedRecyclerViewAdapter.notifyThereAreMoreItems();
+        feedRecyclerViewAdapter.notifyDataSetChanged();
+    }
+
+
     private class FeedHolder extends RecyclerView.ViewHolder {
 
         private final ImageView userImage;
         private final TextView userAlias;
-        private final TextView userName;
+        private final TextView userFirstName;
+        private final TextView userLastName;
         private final TextView userTweet;
+        private final TextView timeStamp;
 
         FeedHolder(@NonNull View itemView) {
             super(itemView);
 
             userImage = itemView.findViewById(R.id.tweetUserImage);
             userAlias = itemView.findViewById(R.id.tweetUserHandle);
-            userName = itemView.findViewById(R.id.tweetUserName);
+            userFirstName = itemView.findViewById(R.id.tweetUserFirstName);
+            userLastName = itemView.findViewById(R.id.tweetUserLastName);
             userTweet = itemView.findViewById(R.id.tweetUserTweet);
+            timeStamp = itemView.findViewById(R.id.timeStamp);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(getContext(), "You selected '" + userName.getText() + "'.", Toast.LENGTH_SHORT).show();
+
+                    GetUserTask getUserTask = new GetUserTask(presenter, getActivity(), presenter.getUserShown(), userAlias.toString());
+                    UserRequest request = new UserRequest(presenter.getUserShown(), userAlias.getText().toString());
+                    getUserTask.execute(request);
                 }
             });
         }
@@ -87,8 +108,10 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
         void bindTweet(Tweet tweet) {
             userImage.setImageDrawable(ImageCache.getInstance().getImageDrawable(tweet.getUser()));
             userAlias.setText(tweet.getUser().getAlias());
-            userName.setText(tweet.getUser().getFirstName()+ " "+tweet.getUser().getLastName());
+            userFirstName.setText(tweet.getUser().getFirstName());
+            userLastName.setText(tweet.getUser().getLastName());
             userTweet.setText(tweet.getMessage());
+            timeStamp.setText(tweet.getTimeStamp());
         }
     }
 
@@ -106,14 +129,14 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
         }
 
         void addItems(List<Tweet> newTweets) {
-            int startInsertPosition = tweets.size();
-            tweets.addAll(newTweets);
-            this.notifyItemRangeInserted(startInsertPosition, newTweets.size());
+//            int startInsertPosition = tweets.size();
+            tweets.addAll(0,newTweets);
+            this.notifyItemRangeInserted(0, newTweets.size());
         }
 
         void addItem(Tweet tweet) {
-            tweets.add(tweet);
-            this.notifyItemInserted(tweets.size() - 1);
+            tweets.add(0, tweet);
+            this.notifyItemInserted(0);
         }
 
         void removeItem(Tweet tweet) {
@@ -161,7 +184,7 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
             addLoadingFooter();
 
             GetFeedTask getFeedTask = new GetFeedTask(presenter, this);
-            FeedRequest request = new FeedRequest(presenter.getCurrentUser(), PAGE_SIZE, lastTweet);
+            FeedRequest request = new FeedRequest(presenter.getUserShown(), PAGE_SIZE, lastTweet);
             getFeedTask.execute(request);
         }
 
@@ -175,6 +198,12 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
             isLoading = false;
             removeLoadingFooter();
             feedRecyclerViewAdapter.addItems(tweets);
+        }
+
+        void notifyThereAreMoreItems() {
+            GetFeedTask getFeedTask = new GetFeedTask(presenter, this);
+            FeedRequest request = new FeedRequest(presenter.getUserShown(), PAGE_SIZE, lastTweet);
+            getFeedTask.execute(request);
         }
 
         private void addLoadingFooter() {

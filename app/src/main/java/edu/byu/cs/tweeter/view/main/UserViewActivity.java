@@ -3,16 +3,6 @@ package edu.byu.cs.tweeter.view.main;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.tabs.TabLayout;
-
-import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,37 +10,52 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.viewpager.widget.ViewPager;
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.Tweet;
 import edu.byu.cs.tweeter.model.domain.User;
-import edu.byu.cs.tweeter.net.response.StoryResponse;
 import edu.byu.cs.tweeter.presenter.MainPresenter;
-import edu.byu.cs.tweeter.presenter.StoryPresenter;
-import edu.byu.cs.tweeter.view.asyncTasks.GetStoryTask;
 import edu.byu.cs.tweeter.view.asyncTasks.LoadImageTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
 import edu.byu.cs.tweeter.view.main.feed.FeedFragment;
 import edu.byu.cs.tweeter.view.main.story.StoryFragment;
 
-public class MainActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View {
+
+public class UserViewActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View {
 
     private MainPresenter presenter;
-    private StoryPresenter storyPresenter;
     private User user;
     private ImageView userImageView;
     private boolean following = true; // TODO: this should come from the user itself
-//    private View theView;
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_userview);
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
+
+        Toolbar toolbar = findViewById(R.id.userviewToolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar ab = getSupportActionBar();
+
+        ab.setDisplayHomeAsUpEnabled(true);
+        ab.setDisplayShowTitleEnabled(false);
+
 
         ImageView optionDots = findViewById(R.id.optionDots);
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -60,11 +65,28 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         TextView tweetCardCancel = findViewById(R.id.tweetCardCancel);
         Button signOutButton = findViewById(R.id.signOutButton);
         Button sendTweetButton = findViewById(R.id.sendTweetButton);
-//        final Button followButton = findViewById(R.id.followButton);
-
+        final Button followButton = findViewById(R.id.followButton);
+//
         final StoryFragment storyFragment = sectionsPagerAdapter.getStoryFragment();
         final FeedFragment feedFragment = sectionsPagerAdapter.getFeedFragment();
 
+//
+//
+        followButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isFollowing()) {
+                    followButton.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                    followButton.setText("Follow");
+                }
+                else {
+                    followButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+                    followButton.setText("Following");
+                }
+
+                Toast.makeText(view.getContext(),"TODO: implement follow and unfollow", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,8 +128,9 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         userImageView = findViewById(R.id.userImage);
 
         presenter = new MainPresenter(this);
-        user = presenter.getCurrentUser();
-        presenter.setShownUser(user);
+        user = presenter.getUserShown();
+
+//        presenter.setShownUser(user);
 
         sendTweetButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,14 +149,16 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
 
 
         // Asynchronously load the user's image
+
         LoadImageTask loadImageTask = new LoadImageTask(this);
-        loadImageTask.execute(presenter.getCurrentUser().getImageUrl());
+
+        loadImageTask.execute(presenter.getUserShown().getImageUrl());
 
         TextView userName = findViewById(R.id.userName);
-        userName.setText(user.getName());
+        userName.setText(presenter.getUserShown().getName());
 
         TextView userAlias = findViewById(R.id.userAlias);
-        userAlias.setText(user.getAlias());
+        userAlias.setText(presenter.getUserShown().getAlias());
     }
 
     private void switchToSignInView (View view) {

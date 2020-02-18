@@ -31,6 +31,8 @@ import edu.byu.cs.tweeter.view.cache.ImageCache;
 
 public class StoryFragment extends Fragment implements StoryPresenter.View {
 
+    private static RecyclerView storyRecyclerView;
+
     private static final int LOADING_DATA_VIEW = 0;
     private static final int ITEM_VIEW = 1;
 
@@ -47,7 +49,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
 
         presenter = new StoryPresenter(this);
 
-        RecyclerView storyRecyclerView = view.findViewById(R.id.storyRecyclerView);
+        storyRecyclerView = view.findViewById(R.id.storyRecyclerView);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         storyRecyclerView.setLayoutManager(layoutManager);
@@ -66,26 +68,34 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
         storyRecyclerViewAdapter.notifyDataSetChanged();
     }
 
+    public void scrollToTop(){
+        storyRecyclerView.smoothScrollToPosition(0);
+    }
+
 
     private class StoryHolder extends RecyclerView.ViewHolder {
 
         private final ImageView userImage;
         private final TextView userAlias;
-        private final TextView userName;
+        private final TextView userFirstName;
+        private final TextView userLastName;
         private final TextView userTweet;
+        private final TextView timeStamp;
 
         StoryHolder(@NonNull View itemView) {
             super(itemView);
 
             userImage = itemView.findViewById(R.id.tweetUserImage);
             userAlias = itemView.findViewById(R.id.tweetUserHandle);
-            userName = itemView.findViewById(R.id.tweetUserName);
+            userFirstName = itemView.findViewById(R.id.tweetUserFirstName);
+            userLastName = itemView.findViewById(R.id.tweetUserLastName);
             userTweet = itemView.findViewById(R.id.tweetUserTweet);
+            timeStamp = itemView.findViewById(R.id.timeStamp);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(getContext(), "You selected '" + userName.getText() + "'.", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getContext(), "You selected '" + userName.getText() + "'.", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -93,8 +103,10 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
         void bindTweet(Tweet tweet) {
             userImage.setImageDrawable(ImageCache.getInstance().getImageDrawable(tweet.getUser()));
             userAlias.setText(tweet.getUser().getAlias());
-            userName.setText(tweet.getUser().getFirstName()+" "+tweet.getUser().getLastName());
+            userFirstName.setText(tweet.getUser().getFirstName());
+            userLastName.setText(tweet.getUser().getLastName());
             userTweet.setText(tweet.getMessage());
+            timeStamp.setText(tweet.getTimeStamp());
         }
     }
 
@@ -112,14 +124,14 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
         }
 
         void addItems(List<Tweet> newTweets) {
-            int startInsertPosition = tweets.size();
-            tweets.addAll(newTweets);
-            this.notifyItemRangeInserted(startInsertPosition, newTweets.size());
+//            int startInsertPosition = tweets.size();
+            tweets.addAll(0,newTweets);
+            this.notifyItemRangeInserted(0, newTweets.size());
         }
 
         void addItem(Tweet tweet) {
-            tweets.add(tweet);
-            this.notifyItemInserted(tweets.size() - 1);
+            tweets.add(0, tweet);
+            this.notifyItemInserted(0);
         }
 
         void removeItem(Tweet tweet) {
@@ -127,6 +139,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
             tweets.remove(position);
             this.notifyItemRemoved(position);
         }
+
 
         @NonNull
         @Override

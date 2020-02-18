@@ -17,6 +17,10 @@ public class User implements Comparable<User> {
         this(firstName, lastName, String.format("@%s%s", firstName, lastName), imageURL, null);
     }
 
+    public User(@NotNull String firstName, @NotNull String lastName, @NotNull String alias, String imageURL) {
+        this(firstName, lastName, alias, imageURL, null);
+    }
+
     public User(@NotNull String firstName, @NotNull String lastName, String imageURL, List<Tweet> tweets) {
         this(firstName, lastName, String.format("@%s%s", firstName, lastName), imageURL, tweets);
     }

@@ -1,22 +1,24 @@
 package edu.byu.cs.tweeter.net;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import edu.byu.cs.tweeter.model.domain.Follow;
 import edu.byu.cs.tweeter.model.domain.Tweet;
-import edu.byu.cs.tweeter.model.domain.Tweeted;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.request.FeedRequest;
 import edu.byu.cs.tweeter.net.request.FollowerRequest;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.net.request.StoryRequest;
+import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.FeedResponse;
 import edu.byu.cs.tweeter.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.net.response.StoryResponse;
+import edu.byu.cs.tweeter.net.response.UserResponse;
 
 public class ServerFacade {
 
@@ -50,6 +52,22 @@ public class ServerFacade {
         }
 
         return new FollowingResponse(responseFollowees, hasMorePages);
+    }
+
+    public UserResponse getUser(UserRequest request) {
+        if(followeesByFollower == null) {
+            followeesByFollower = initializeFollowees();
+        }
+
+        List<User> userSignedFollowers = followeesByFollower.get(request.getUser());
+
+        for (int i = 0; i < userSignedFollowers.size(); i++) {
+            if (userSignedFollowers.get(i).getAlias().equals(request.getHandle())) {
+                return new UserResponse(userSignedFollowers.get(i));
+            }
+        }
+
+        return null;
     }
 
     public FollowerResponse getFollowers(FollowerRequest request) {
@@ -124,7 +142,11 @@ public class ServerFacade {
         }
 
         List<Tweet> responseTweets = new ArrayList<>(request.getLimit());
-        List<Tweet> allTweets = tweetsByUser.get(request.getUser());
+        List<Tweet> allTweets = new ArrayList<>();
+
+        for (Map.Entry<User, List<Tweet> > entry : tweetsByUser.entrySet()) {
+            allTweets.addAll(0, entry.getValue());
+        }
 //
         boolean hasMorePages = false;
 
@@ -140,7 +162,7 @@ public class ServerFacade {
             }
         }
 
-//        return new FollowerResponse(responseFollowees, hasMorePages);
+        Collections.sort(responseTweets, Collections.<Tweet>reverseOrder());
         return new FeedResponse(responseTweets,hasMorePages);
 
     }
@@ -150,6 +172,9 @@ public class ServerFacade {
             tweetsByUser = initializeTweets(tweet.getUser());
         }
         List<Tweet> tweets = tweetsByUser.get(tweet.getUser());
+        if (tweets == null) {
+            tweets = new ArrayList<Tweet>();
+        }
         tweets.add(tweet);
         tweetsByUser.put(tweet.getUser(),tweets);
     }
@@ -233,25 +258,10 @@ public class ServerFacade {
 
         for (User person : peopleIFollow) {
             allTweets.addAll(person.getTweets());
+            tweetsByUser.put(person, allTweets);
         }
+        Collections.sort(allTweets);
 
-        tweetsByUser.put(user, allTweets);
-
-//
-//        List<Tweeted> tweeted = getTweetedGenerator().generateTweets(100,
-//                0, 50, TweetedGenerator.Sort.FOLLOWER_FOLLOWEE); //TODO: this is not right
-//
-//        // Populate a map of followees, keyed by follower so we can easily handle followee requests
-//        for(Tweeted tweet : tweeted) {
-//            List<Tweet> tweets = userToTweetsMap.get(tweet.getUser());
-//
-//            if(tweets == null) {
-//                tweets = new ArrayList<>();
-//                userToTweetsMap.put(tweet.getUser(), tweets);
-//            }
-//
-//            tweets.add(tweet.getTweet());
-//        }
 
         return tweetsByUser;
     }
