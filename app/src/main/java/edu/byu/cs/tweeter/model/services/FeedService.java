@@ -26,8 +26,8 @@ public class FeedService {
         serverFacade = new ServerFacade();
     }
 
-    public FeedResponse getTweets(FeedRequest request) {
-        FeedResponse r = serverFacade.getTweets(request);
+    public FeedResponse getFeed(FeedRequest request) {
+        FeedResponse r = serverFacade.getFeed(request);
         return r;
     }
 

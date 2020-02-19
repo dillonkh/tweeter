@@ -22,14 +22,18 @@ import androidx.viewpager.widget.ViewPager;
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.Tweet;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.net.request.FollowRequest;
+import edu.byu.cs.tweeter.net.request.UnFollowRequest;
 import edu.byu.cs.tweeter.presenter.MainPresenter;
+import edu.byu.cs.tweeter.view.asyncTasks.GetFollowTask;
+import edu.byu.cs.tweeter.view.asyncTasks.GetUnFollowTask;
 import edu.byu.cs.tweeter.view.asyncTasks.LoadImageTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
 import edu.byu.cs.tweeter.view.main.feed.FeedFragment;
 import edu.byu.cs.tweeter.view.main.story.StoryFragment;
 
 
-public class UserViewActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View {
+public class UserViewActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View, GetFollowTask.GetFollowObserver, GetUnFollowTask.GetUnFollowObserver {
 
     private MainPresenter presenter;
     private User user;
@@ -56,6 +60,9 @@ public class UserViewActivity extends AppCompatActivity implements LoadImageTask
         ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowTitleEnabled(false);
 
+        presenter = new MainPresenter(this);
+        user = presenter.getUserShown();
+
 
         ImageView optionDots = findViewById(R.id.optionDots);
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -66,6 +73,7 @@ public class UserViewActivity extends AppCompatActivity implements LoadImageTask
         Button signOutButton = findViewById(R.id.signOutButton);
         Button sendTweetButton = findViewById(R.id.sendTweetButton);
         final Button followButton = findViewById(R.id.followButton);
+        setBackgroundColorOfFollowButton(followButton);
 //
         final StoryFragment storyFragment = sectionsPagerAdapter.getStoryFragment();
         final FeedFragment feedFragment = sectionsPagerAdapter.getFeedFragment();
@@ -75,16 +83,26 @@ public class UserViewActivity extends AppCompatActivity implements LoadImageTask
         followButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isFollowing()) {
+                if (isFollowing()) { // unfollow them
+
+                    GetUnFollowTask getUnFollowTask = new GetUnFollowTask(presenter, UserViewActivity.this);
+                    UnFollowRequest request = new UnFollowRequest(presenter.getUserShown(), presenter.getCurrentUser());
+                    getUnFollowTask.execute(request);
+
                     followButton.setBackgroundColor(getResources().getColor(R.color.colorAccent));
                     followButton.setText("Follow");
                 }
-                else {
+                else { // follow them
+
+                    GetFollowTask getFollowTask = new GetFollowTask(presenter, UserViewActivity.this);
+                    FollowRequest request = new FollowRequest(presenter.getUserShown(), presenter.getCurrentUser());
+                    getFollowTask.execute(request);
+
                     followButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
                     followButton.setText("Following");
                 }
 
-                Toast.makeText(view.getContext(),"TODO: implement follow and unfollow", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(view.getContext(),"TODO: implement follow and unfollow", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -127,8 +145,6 @@ public class UserViewActivity extends AppCompatActivity implements LoadImageTask
 
         userImageView = findViewById(R.id.userImage);
 
-        presenter = new MainPresenter(this);
-        user = presenter.getUserShown();
 
 //        presenter.setShownUser(user);
 
@@ -161,6 +177,17 @@ public class UserViewActivity extends AppCompatActivity implements LoadImageTask
         userAlias.setText(presenter.getUserShown().getAlias());
     }
 
+    private void setBackgroundColorOfFollowButton(Button followButton) {
+        if (isFollowing()) {
+            followButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+            followButton.setText("Following");
+        }
+        else {
+            followButton.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+            followButton.setText("Follow");
+        }
+    }
+
     private void switchToSignInView (View view) {
 //        Toast.makeText(view.getContext(),"TODO: switch to sign in page", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, LoginActivity.class);
@@ -168,10 +195,10 @@ public class UserViewActivity extends AppCompatActivity implements LoadImageTask
     }
 
     private boolean isFollowing () {
-        following = !following;
-
-        return following;
+        return presenter.isFollowing(presenter.getCurrentUser(), presenter.getUserShown());
     }
+
+
 
     @Override
     public void imageLoadProgressUpdated(Integer progress) {

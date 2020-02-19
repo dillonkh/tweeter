@@ -22,9 +22,11 @@ import java.util.List;
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.request.FollowerRequest;
+import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.presenter.FollowerPresenter;
 import edu.byu.cs.tweeter.view.asyncTasks.GetFollowerTask;
+import edu.byu.cs.tweeter.view.asyncTasks.GetUserTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
 
 public class FollowerFragment extends Fragment implements FollowerPresenter.View {
@@ -84,6 +86,15 @@ public class FollowerFragment extends Fragment implements FollowerPresenter.View
             userImage.setImageDrawable(ImageCache.getInstance().getImageDrawable(user));
             userAlias.setText(user.getAlias());
             userName.setText(user.getName());
+
+            userAlias.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    GetUserTask getUserTask = new GetUserTask(presenter, getActivity(), presenter.getUserShown(), userAlias.toString());
+                    UserRequest request = new UserRequest(presenter.getUserShown(), userAlias.getText().toString());
+                    getUserTask.execute(request);
+                }
+            });
         }
     }
 
@@ -156,7 +167,7 @@ public class FollowerFragment extends Fragment implements FollowerPresenter.View
             addLoadingFooter();
 
             GetFollowerTask getFollowerTask = new GetFollowerTask(presenter, this);
-            FollowerRequest request = new FollowerRequest(presenter.getCurrentUser(), PAGE_SIZE, lastFollowee);
+            FollowerRequest request = new FollowerRequest(presenter.getUserShown(), PAGE_SIZE, lastFollowee);
             getFollowerTask.execute(request);
         }
 

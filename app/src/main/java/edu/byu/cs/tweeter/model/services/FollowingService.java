@@ -2,7 +2,9 @@ package edu.byu.cs.tweeter.model.services;
 
 import edu.byu.cs.tweeter.net.ServerFacade;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.net.response.UserResponse;
 
 public class FollowingService {
 
@@ -26,7 +28,8 @@ public class FollowingService {
         return serverFacade.getFollowees(request);
     }
 
-//    public FollowingResponse getUser(FollowingRequest request) {
-//        return serverFacade.getUser(request);
-//    }
+    public UserResponse getUser(UserRequest request) {
+        UserResponse r = serverFacade.getUser(request);
+        return r;
+    }
 }

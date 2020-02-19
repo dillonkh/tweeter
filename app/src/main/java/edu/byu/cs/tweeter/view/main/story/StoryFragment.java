@@ -1,5 +1,6 @@
 package edu.byu.cs.tweeter.view.main.story;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
@@ -8,6 +9,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +30,11 @@ import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.Tweet;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.request.StoryRequest;
+import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.StoryResponse;
 import edu.byu.cs.tweeter.presenter.StoryPresenter;
 import edu.byu.cs.tweeter.view.asyncTasks.GetStoryTask;
+import edu.byu.cs.tweeter.view.asyncTasks.GetUserTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
 
 public class StoryFragment extends Fragment implements StoryPresenter.View {
@@ -92,12 +100,15 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
             userTweet = itemView.findViewById(R.id.tweetUserTweet);
             timeStamp = itemView.findViewById(R.id.timeStamp);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-//                    Toast.makeText(getContext(), "You selected '" + userName.getText() + "'.", Toast.LENGTH_SHORT).show();
-                }
-            });
+//            itemView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    GetUserTask getUserTask = new GetUserTask(presenter, getActivity(), presenter.getUserShown(), userAlias.toString());
+//                    UserRequest request = new UserRequest(presenter.getUserShown(), userAlias.getText().toString());
+//                    getUserTask.execute(request);
+//                }
+//            });
+
         }
 
         void bindTweet(Tweet tweet) {
@@ -105,8 +116,93 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
             userAlias.setText(tweet.getUser().getAlias());
             userFirstName.setText(tweet.getUser().getFirstName());
             userLastName.setText(tweet.getUser().getLastName());
-            userTweet.setText(tweet.getMessage());
+
+            SpannableString ss = parseMessage(tweet.getMessage());
+            if (ss != null) {
+                userTweet.setText(ss);
+            }
+            else {
+                userTweet.setText(tweet.getMessage());
+            }
+            userTweet.setMovementMethod(LinkMovementMethod.getInstance());
+            userTweet.setHighlightColor(Color.TRANSPARENT);
             timeStamp.setText(tweet.getTimeStamp());
+
+            userAlias.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    GetUserTask getUserTask = new GetUserTask(presenter, getActivity(), presenter.getUserShown(), userAlias.toString());
+                    UserRequest request = new UserRequest(presenter.getUserShown(), userAlias.getText().toString());
+                    getUserTask.execute(request);
+                }
+            });
+        }
+    }
+
+    private SpannableString parseMessage(String message) {
+        String parsed = new String();
+        SpannableString ss = new SpannableString(message);
+
+        int start = -1;
+        int end = -1;
+        for (int i = 0; i < message.length(); i++) {
+            if (start < 0) {
+                if (message.charAt(i) == '@') {
+                    start = i;
+                }
+            }
+            else {
+                if (message.charAt(i) == ' ' || i == message.length()) {
+                    end = i;
+                    break;
+                }
+            }
+        }
+        if (start == -1) {
+            return null;
+        }
+        else if (end == -1) {
+            end = message.length() - 1;
+        }
+        while (true) {
+            if ( (message.charAt(end) >= 48 && message.charAt(end) <= 57)
+                    || (message.charAt(end) >= 65 && message.charAt(end) <= 90)
+                    || (message.charAt(end) >= 97 && message.charAt(end) <= 122) ) {
+
+                break;
+            }
+            else {
+                end = end - 1;
+            }
+        }
+
+        ClickableSpan clickableSpan = new MyClickableSpan(message.substring(start, end + 1));
+
+        ss.setSpan(clickableSpan, start, end+1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        return ss;
+    }
+
+    class MyClickableSpan extends ClickableSpan {
+
+        String message;
+
+        public MyClickableSpan(String message) {
+            this.message = message;
+        }
+
+        @Override
+        public void onClick(View textView) {
+//                startActivity(new Intent(MyActivity.this, NextActivity.class));
+                Toast.makeText(textView.getContext(),message,Toast.LENGTH_SHORT).show();
+            GetUserTask getUserTask = new GetUserTask(presenter, getActivity(), presenter.getUserShown(), message);
+            UserRequest request = new UserRequest(presenter.getUserShown(), message);
+            getUserTask.execute(request);
+        }
+        @Override
+        public void updateDrawState(TextPaint ds) {
+            super.updateDrawState(ds);
+            ds.setUnderlineText(false);
         }
     }
 
@@ -181,13 +277,13 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
             addLoadingFooter();
 
             GetStoryTask getStoryTask = new GetStoryTask(presenter, this);
-            StoryRequest request = new StoryRequest(presenter.getCurrentUser(), PAGE_SIZE, lastTweet);
+            StoryRequest request = new StoryRequest(presenter.getUserShown(), PAGE_SIZE, lastTweet);
             getStoryTask.execute(request);
         }
 
         void notifyThereAreMoreItems() {
             GetStoryTask getStoryTask = new GetStoryTask(presenter, this);
-            StoryRequest request = new StoryRequest(presenter.getCurrentUser(), PAGE_SIZE, lastTweet);
+            StoryRequest request = new StoryRequest(presenter.getUserShown(), PAGE_SIZE, lastTweet);
             getStoryTask.execute(request);
         }
 
@@ -201,6 +297,8 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
             isLoading = false;
             removeLoadingFooter();
             storyRecyclerViewAdapter.addItems(tweets);
+
+//            notifyThereAreMoreItems();
         }
 
         private void addLoadingFooter() {
@@ -214,7 +312,9 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
         }
 
         private void removeLoadingFooter() {
-            removeItem(tweets.get(tweets.size() - 1));
+            if (tweets.size() > 0) {
+                removeItem(tweets.get(tweets.size() - 1));
+            }
         }
     }
 

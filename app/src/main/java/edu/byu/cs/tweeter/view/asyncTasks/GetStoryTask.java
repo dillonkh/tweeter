@@ -60,5 +60,6 @@ public class GetStoryTask extends AsyncTask<StoryRequest, Void, StoryResponse> {
         if(observer != null) {
             observer.tweetsRetrieved(storyResponse);
         }
+
     }
 }

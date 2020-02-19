@@ -1,6 +1,8 @@
 package edu.byu.cs.tweeter.view.main;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
@@ -13,6 +15,10 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,10 +29,12 @@ import android.widget.Toast;
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.Tweet;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.StoryResponse;
 import edu.byu.cs.tweeter.presenter.MainPresenter;
 import edu.byu.cs.tweeter.presenter.StoryPresenter;
 import edu.byu.cs.tweeter.view.asyncTasks.GetStoryTask;
+import edu.byu.cs.tweeter.view.asyncTasks.GetUserTask;
 import edu.byu.cs.tweeter.view.asyncTasks.LoadImageTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
 import edu.byu.cs.tweeter.view.main.feed.FeedFragment;
@@ -35,7 +43,7 @@ import edu.byu.cs.tweeter.view.main.story.StoryFragment;
 public class MainActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View {
 
     private MainPresenter presenter;
-    private StoryPresenter storyPresenter;
+//    private StoryPresenter storyPresenter;
     private User user;
     private ImageView userImageView;
     private boolean following = true; // TODO: this should come from the user itself
@@ -60,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         TextView tweetCardCancel = findViewById(R.id.tweetCardCancel);
         Button signOutButton = findViewById(R.id.signOutButton);
         Button sendTweetButton = findViewById(R.id.sendTweetButton);
+        final EditText searchBox = findViewById(R.id.searchText);
+        ImageView searchUserIcon = findViewById(R.id.searchUserIcon);
 //        final Button followButton = findViewById(R.id.followButton);
 
         final StoryFragment storyFragment = sectionsPagerAdapter.getStoryFragment();
@@ -124,6 +134,15 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
             }
         });
 
+        searchUserIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GetUserTask getUserTask = new GetUserTask(presenter, MainActivity.this, presenter.getUserShown(), searchBox.getText().toString());
+                UserRequest request = new UserRequest(presenter.getUserShown(), searchBox.getText().toString());
+                getUserTask.execute(request);
+            }
+        });
+
 
         // Asynchronously load the user's image
         LoadImageTask loadImageTask = new LoadImageTask(this);
@@ -135,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         TextView userAlias = findViewById(R.id.userAlias);
         userAlias.setText(user.getAlias());
     }
+
 
     private void switchToSignInView (View view) {
 //        Toast.makeText(view.getContext(),"TODO: switch to sign in page", Toast.LENGTH_SHORT).show();
@@ -161,4 +181,30 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
             userImageView.setImageDrawable(drawables[0]);
         }
     }
+
+//    class MyCustomSpannable extends ClickableSpan
+//    {
+////        String handle;
+//        public MyCustomSpannable() {
+////            this.handle = handle;
+//        }
+//        @Override
+//        public void updateDrawState(TextPaint ds) {
+//            // Customize your Text Look if required
+//            ds.setColor(Color.YELLOW);
+//            ds.setFakeBoldText(true);
+//            ds.setStrikeThruText(true);
+//            ds.setTypeface(Typeface.SERIF);
+//            ds.setUnderlineText(true);
+//            ds.setShadowLayer(10, 1, 1, Color.WHITE);
+//            ds.setTextSize(15);
+//        }
+//        @Override
+//        public void onClick(View widget) {
+//
+//        }
+////        public String getUrl() {
+////            return handle;
+////        }
+//    }
 }

@@ -31,6 +31,7 @@
             android:id="@+id/userAlias"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="@string/sampleAlias"/>
+            tools:text="@string/sampleAlias"
+            android:clickable="true"/>
     </LinearLayout>
 </RelativeLayout>

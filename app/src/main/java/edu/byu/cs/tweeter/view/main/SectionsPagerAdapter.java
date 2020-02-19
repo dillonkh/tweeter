@@ -58,7 +58,7 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     public FeedFragment getFeedFragment() {
 //        feedFragm
-        return new FeedFragment();
+        return feedFragment;
     }
 
     @Override

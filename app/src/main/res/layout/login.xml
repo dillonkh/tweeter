@@ -78,7 +78,7 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="350dp"
+        android:layout_height="425dp"
         android:id="@+id/signUpCard"
         android:visibility="gone"
         android:layout_marginVertical="200dp"
@@ -137,6 +137,14 @@
                     android:layout_centerHorizontal="true"
                     android:id="@+id/signUpPasswordInput"
                     android:hint="Password">
+
+                </EditText>
+                <EditText
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:id="@+id/signUpImageURL"
+                    android:hint="Image URL">
 
                 </EditText>
 

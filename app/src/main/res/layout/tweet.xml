@@ -57,6 +57,7 @@
                         android:layout_height="wrap_content"
                         android:text="\@defaulthandle"
                         android:id="@+id/tweetUserHandle"
+                        android:clickable="true"
                         android:layout_marginLeft="5dp">
 
                     </TextView>

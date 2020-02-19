@@ -1,5 +1,7 @@
 package edu.byu.cs.tweeter.model.domain;
 
+import android.text.SpannableString;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
@@ -19,6 +21,16 @@ public class Tweet implements Comparable<Tweet> {
     public Tweet(@NotNull User user, @NotNull String message, String url) {
         this.user = user;
         this.message = message;
+        this.url = url;
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        this.now = LocalDateTime.now();
+        this.timeStamp = dtf.format(now);
+
+    }
+
+    public Tweet(@NotNull User user, @NotNull SpannableString message, String url) {
+        this.user = user;
+        this.message = message.toString();
         this.url = url;
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         this.now = LocalDateTime.now();

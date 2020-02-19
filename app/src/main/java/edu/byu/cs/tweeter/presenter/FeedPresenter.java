@@ -23,7 +23,7 @@ public class FeedPresenter extends Presenter {
     }
 
     public FeedResponse getTweets(FeedRequest request) {
-        return FeedService.getInstance().getTweets(request);
+        return FeedService.getInstance().getFeed(request);
     }
 
     public UserResponse getUser(UserRequest request) {

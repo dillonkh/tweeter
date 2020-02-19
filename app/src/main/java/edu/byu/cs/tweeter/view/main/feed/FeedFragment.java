@@ -94,15 +94,16 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
             userTweet = itemView.findViewById(R.id.tweetUserTweet);
             timeStamp = itemView.findViewById(R.id.timeStamp);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+//            itemView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//
+//                    GetUserTask getUserTask = new GetUserTask(presenter, getActivity(), presenter.getUserShown(), userAlias.toString());
+//                    UserRequest request = new UserRequest(presenter.getUserShown(), userAlias.getText().toString());
+//                    getUserTask.execute(request);
+//                }
+//            });
 
-                    GetUserTask getUserTask = new GetUserTask(presenter, getActivity(), presenter.getUserShown(), userAlias.toString());
-                    UserRequest request = new UserRequest(presenter.getUserShown(), userAlias.getText().toString());
-                    getUserTask.execute(request);
-                }
-            });
         }
 
         void bindTweet(Tweet tweet) {
@@ -112,6 +113,15 @@ public class FeedFragment extends Fragment implements FeedPresenter.View {
             userLastName.setText(tweet.getUser().getLastName());
             userTweet.setText(tweet.getMessage());
             timeStamp.setText(tweet.getTimeStamp());
+
+            userAlias.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    GetUserTask getUserTask = new GetUserTask(presenter, getActivity(), presenter.getUserShown(), userAlias.toString());
+                    UserRequest request = new UserRequest(presenter.getUserShown(), userAlias.getText().toString());
+                    getUserTask.execute(request);
+                }
+            });
         }
     }
 

@@ -2,11 +2,18 @@ package edu.byu.cs.tweeter.presenter;
 
 import edu.byu.cs.tweeter.model.services.FollowingService;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.net.response.UserResponse;
 
 public class FollowingPresenter extends Presenter {
 
     private final View view;
+
+    @Override
+    public UserResponse getUser(UserRequest request) {
+        return FollowingService.getInstance().getUser(request);
+    }
 
     /**
      * The interface by which this presenter communicates with it's view.

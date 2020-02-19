@@ -1,8 +1,11 @@
 package edu.byu.cs.tweeter.presenter;
 
+import edu.byu.cs.tweeter.model.services.FeedService;
 import edu.byu.cs.tweeter.model.services.StoryService;
 import edu.byu.cs.tweeter.net.request.StoryRequest;
+import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.StoryResponse;
+import edu.byu.cs.tweeter.net.response.UserResponse;
 
 public class StoryPresenter extends Presenter {
 
@@ -22,5 +25,9 @@ public class StoryPresenter extends Presenter {
 
     public StoryResponse getTweets(StoryRequest request) {
         return StoryService.getInstance().getTweets(request);
+    }
+
+    public UserResponse getUser(UserRequest request) {
+        return StoryService.getInstance().getUser(request);
     }
 }

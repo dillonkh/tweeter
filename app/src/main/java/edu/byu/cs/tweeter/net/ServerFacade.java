@@ -3,38 +3,56 @@ package edu.byu.cs.tweeter.net;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.byu.cs.tweeter.model.domain.Follow;
 import edu.byu.cs.tweeter.model.domain.Tweet;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.request.FeedRequest;
+import edu.byu.cs.tweeter.net.request.FollowRequest;
 import edu.byu.cs.tweeter.net.request.FollowerRequest;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.net.request.StoryRequest;
+import edu.byu.cs.tweeter.net.request.UnFollowRequest;
 import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.FeedResponse;
+import edu.byu.cs.tweeter.net.response.FollowResponse;
 import edu.byu.cs.tweeter.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.net.response.StoryResponse;
+import edu.byu.cs.tweeter.net.response.UnFollowResponse;
 import edu.byu.cs.tweeter.net.response.UserResponse;
 
 public class ServerFacade {
 
-    private static Map<User, List<User>> followeesByFollower;
-    private static Map<User, List<Tweet>> tweetsByUser;
+    private static Map<User, List<User>> followeesByUser;
+    private static Map<User, List<User>> followersByUser;
+    private static Set<User> usersInDB;
 
-    public FollowingResponse getFollowees(FollowingRequest request) {
+    public UserResponse getUser(UserRequest request) {
+
+        for (User u : usersInDB) {
+            if (request.getHandle().equals(u.getAlias())) {
+                return new UserResponse(u);
+            }
+        }
+
+        return null;
+    }
+
+    public FollowingResponse getFollowees(FollowingRequest request) { // people i follow
 
         assert request.getLimit() >= 0;
         assert request.getFollower() != null;
 
-        if(followeesByFollower == null) {
-            followeesByFollower = initializeFollowees();
+        if(followeesByUser == null) {
+            followeesByUser = initializeFollowees(request.getFollower());
         }
 
-        List<User> allFollowees = followeesByFollower.get(request.getFollower());
+        List<User> allFollowees = followeesByUser.get(request.getFollower());
         List<User> responseFollowees = new ArrayList<>(request.getLimit());
 
         boolean hasMorePages = false;
@@ -54,32 +72,16 @@ public class ServerFacade {
         return new FollowingResponse(responseFollowees, hasMorePages);
     }
 
-    public UserResponse getUser(UserRequest request) {
-        if(followeesByFollower == null) {
-            followeesByFollower = initializeFollowees();
-        }
-
-        List<User> userSignedFollowers = followeesByFollower.get(request.getUser());
-
-        for (int i = 0; i < userSignedFollowers.size(); i++) {
-            if (userSignedFollowers.get(i).getAlias().equals(request.getHandle())) {
-                return new UserResponse(userSignedFollowers.get(i));
-            }
-        }
-
-        return null;
-    }
-
     public FollowerResponse getFollowers(FollowerRequest request) {
 
         assert request.getLimit() >= 0;
         assert request.getFollowing() != null;
 
-        if(followeesByFollower == null) {
-            followeesByFollower = initializeFollowees();
+        if(followersByUser == null) {
+            followersByUser = initializeFollowers(request.getFollowing());
         }
 
-        List<User> allFollowees = followeesByFollower.get(request.getFollowing());
+        List<User> allFollowees = followersByUser.get(request.getFollowing());
         List<User> responseFollowees = new ArrayList<>(request.getLimit());
 
         boolean hasMorePages = false;
@@ -99,55 +101,30 @@ public class ServerFacade {
         return new FollowerResponse(responseFollowees, hasMorePages);
     }
 
-    public StoryResponse getTweets(StoryRequest request) {
+    public FeedResponse getFeed(FeedRequest request) {
 
         assert request.getLimit() >= 0;
         assert request.getUser() != null;
 
 
-        if(tweetsByUser == null) {
-            tweetsByUser = initializeTweets(request.getUser());
-        }
-
-        List<Tweet> responseTweets = new ArrayList<>(request.getLimit());
-        List<Tweet> allTweets = tweetsByUser.get(request.getUser());
-//
-        boolean hasMorePages = false;
-
-        if(request.getLimit() > 0) {
-            if (allTweets != null) {
-                int tweetsIndex = getTweetsStartingIndex(request.getLastTweet(), allTweets);
-
-                for(int limitCounter = 0; tweetsIndex < allTweets.size() && limitCounter < request.getLimit(); tweetsIndex++, limitCounter++) {
-                    responseTweets.add(allTweets.get(tweetsIndex));
-                }
-
-                hasMorePages = tweetsIndex < allTweets.size();
-            }
-        }
-
-//        return new FollowerResponse(responseFollowees, hasMorePages);
-        return new StoryResponse(responseTweets,hasMorePages);
-
-    }
-
-    public FeedResponse getTweets(FeedRequest request) {
-
-        assert request.getLimit() >= 0;
-        assert request.getUser() != null;
-
-
-        if(tweetsByUser == null) {
-            tweetsByUser = initializeTweets(request.getUser());
+        if(followeesByUser == null) {
+            followeesByUser = initializeFollowees(request.getUser());
         }
 
         List<Tweet> responseTweets = new ArrayList<>(request.getLimit());
         List<Tweet> allTweets = new ArrayList<>();
+        List<User> usersIFollow = followeesByUser.get(request.getUser());
 
-        for (Map.Entry<User, List<Tweet> > entry : tweetsByUser.entrySet()) {
-            allTweets.addAll(0, entry.getValue());
+        // add tweets from people i follow to feed
+        if (usersIFollow != null) {
+            for (User u : usersIFollow) {
+                if (u.getTweets() != null) {
+                    allTweets.addAll(0, u.getTweets());
+                }
+            }
         }
-//
+
+
         boolean hasMorePages = false;
 
         if(request.getLimit() > 0) {
@@ -164,19 +141,40 @@ public class ServerFacade {
 
         Collections.sort(responseTweets, Collections.<Tweet>reverseOrder());
         return new FeedResponse(responseTweets,hasMorePages);
+    }
+
+    public StoryResponse getStory(StoryRequest request) {
+
+        assert request.getLimit() >= 0;
+        assert request.getUser() != null;
+
+        List<Tweet> responseTweets = new ArrayList<>(request.getLimit());
+        List<Tweet> allTweets = new ArrayList<>();
+        allTweets = request.getUser().getTweets();
+
+        boolean hasMorePages = false;
+
+        if(request.getLimit() > 0) {
+            if (allTweets != null) {
+                int tweetsIndex = getTweetsStartingIndex(request.getLastTweet(), allTweets);
+
+                for(int limitCounter = 0; tweetsIndex < allTweets.size() && limitCounter < request.getLimit(); tweetsIndex++, limitCounter++) {
+                    responseTweets.add(allTweets.get(tweetsIndex));
+                }
+
+                hasMorePages = tweetsIndex < allTweets.size();
+            }
+        }
+
+        Collections.sort(responseTweets, Collections.<Tweet>reverseOrder());
+        return new StoryResponse(responseTweets,hasMorePages);
 
     }
 
     public void addTweet(Tweet tweet) {
-        if(tweetsByUser == null) {
-            tweetsByUser = initializeTweets(tweet.getUser());
-        }
-        List<Tweet> tweets = tweetsByUser.get(tweet.getUser());
-        if (tweets == null) {
-            tweets = new ArrayList<Tweet>();
-        }
-        tweets.add(tweet);
-        tweetsByUser.put(tweet.getUser(),tweets);
+
+        User user = tweet.getUser();
+        user.addTweet(tweet);
     }
 
     private int getFolloweesStartingIndex(User lastFollowee, List<User> allFollowees) {
@@ -220,51 +218,133 @@ public class ServerFacade {
     /**
      * Generates the followee data.
      */
-    private Map<User, List<User>> initializeFollowees() {
+    private Map<User, List<User>> initializeFollowees(User user) { // people i follow
 
-        Map<User, List<User>> followeesByFollower = new HashMap<>();
+        followeesByUser = new HashMap<>();
 
-        List<Follow> follows = getFollowGenerator().generateUsersAndFollows(1,
-                0, 1, FollowGenerator.Sort.FOLLOWER_FOLLOWEE);
+        List<User> randomUsers = getUserGenerator().generateUsers(1);
 
-        // Populate a map of followees, keyed by follower so we can easily handle followee requests
-        for(Follow follow : follows) {
-            List<User> followees = followeesByFollower.get(follow.getFollower());
+        followeesByUser.put(user,randomUsers);
 
-            if(followees == null) {
-                followees = new ArrayList<>();
-                followeesByFollower.put(follow.getFollower(), followees);
-            }
+        if (usersInDB == null) {
+            usersInDB = new HashSet<>();
+        }
+        usersInDB.add(user);
 
-            followees.add(follow.getFollowee());
+        if (followersByUser == null) {
+            followersByUser = initializeFollowers(user);
         }
 
-        return followeesByFollower;
+        List<User> followeesOfUser = followeesByUser.get(user);
+        for (User u : followeesOfUser) {
+            List<User> temp = followersByUser.get(u);
+            if (temp == null) {
+                temp = new ArrayList<>();
+            }
+            temp.add(user);
+            followersByUser.put(u, temp);
+            usersInDB.add(u);
+        }
+
+
+        return followeesByUser;
+    }
+
+    private Map<User, List<User>> initializeFollowers(User user) { // people following me
+
+        followersByUser = new HashMap<>();
+
+        List<User> randomUsers = getUserGenerator().generateUsers(1);
+
+        followersByUser.put(user,randomUsers);
+
+        if (usersInDB == null) {
+            usersInDB = new HashSet<>();
+        }
+        usersInDB.add(user);
+
+        if (followeesByUser == null) {
+            followeesByUser = initializeFollowees(user);
+        }
+
+        List<User> followersOfUser = followersByUser.get(user); // people i follow
+        for (User u : followersOfUser) {
+            List<User> temp = followeesByUser.get(u);
+            if (temp == null) {
+                temp = new ArrayList<>();
+            }
+            temp.add(user);
+            followeesByUser.put(u, temp);
+            usersInDB.add(u);
+        }
+
+        return followersByUser;
+    }
+
+    public FollowResponse followUser(FollowRequest request) {
+//        1. add usertofollow to followees under userlogged in
+//        2. add userloggedin to followers under usertofollow.
+
+
+        // STEP 1 /////
+        List<User> temp = followeesByUser.get(request.getUserLoggedIn());
+        temp.add(request.getUserToFollow());
+        if (temp == null) {
+            temp = new ArrayList<>();
+        }
+        followeesByUser.put(request.getUserLoggedIn(), temp);
+
+        // STEP 2 /////
+        temp = followersByUser.get(request.getUserToFollow());
+        if (temp == null) {
+            temp = new ArrayList<>();
+        }
+        temp.add(request.getUserLoggedIn());
+        followersByUser.put(request.getUserToFollow(), temp);
+
+        return new FollowResponse(true);
+    }
+
+    public UnFollowResponse unfollowUser(UnFollowRequest request) {
+//        1. add usertofollow to followees under userlogged in
+//        2. add userloggedin to followers under usertofollow.
+
+
+        // STEP 1 /////
+        List<User> temp = followeesByUser.get(request.getUserLoggedIn());
+        temp.remove(request.getUserToFollow());
+//        temp.add(request.getUserToFollow());
+        if (temp == null) {
+            temp = new ArrayList<>();
+        }
+        followeesByUser.put(request.getUserLoggedIn(), temp);
+
+        // STEP 2 /////
+        temp = followersByUser.get(request.getUserToFollow());
+        if (temp == null) {
+            temp = new ArrayList<>();
+        }
+        temp.remove(request.getUserLoggedIn());
+//        temp.add(request.getUserLoggedIn());
+        followersByUser.put(request.getUserToFollow(), temp);
+
+        return new UnFollowResponse(true);
+    }
+
+    public boolean isFollowing(User userLoggedIn, User userShown) {
+
+        for (User u : followeesByUser.get(userLoggedIn)) {
+            if (userShown.equals(u)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * Generates the tweet data.
      */
-    private Map<User, List<Tweet>> initializeTweets(User user) {
 
-        Map<User, List<Tweet>> tweetsByUser = new HashMap<>();
-        ArrayList<Tweet> allTweets = new ArrayList<>();
-
-        if(followeesByFollower == null) {
-            followeesByFollower = initializeFollowees();
-        }
-
-        List<User> peopleIFollow = followeesByFollower.get(user);
-
-        for (User person : peopleIFollow) {
-            allTweets.addAll(person.getTweets());
-            tweetsByUser.put(person, allTweets);
-        }
-        Collections.sort(allTweets);
-
-
-        return tweetsByUser;
-    }
 
     /**
      * Returns an instance of FollowGenerator that can be used to generate Follow data. This is
@@ -272,8 +352,9 @@ public class ServerFacade {
      *
      * @return the generator.
      */
-    FollowGenerator getFollowGenerator() {
-        return FollowGenerator.getInstance();
+
+    UserGenerator getUserGenerator() {
+        return UserGenerator.getInstance();
     }
 
 }

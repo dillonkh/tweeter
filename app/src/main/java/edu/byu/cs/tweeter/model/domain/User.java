@@ -2,6 +2,7 @@ package edu.byu.cs.tweeter.model.domain;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,9 +61,13 @@ public class User implements Comparable<User> {
     public void makeTweets(List<Tweet> newTweets) {
         tweets = newTweets;
     }
-//    public void addTweet(Tweet tweet) {
-//        tweets.add(tweet);
-//    }
+
+    public void addTweet(Tweet tweet) {
+        if (tweets == null) {
+            tweets = new ArrayList<>();
+        }
+        tweets.add(tweet);
+    }
 
     @Override
     public boolean equals(Object o) {
