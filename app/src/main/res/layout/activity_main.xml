@@ -107,7 +107,7 @@
         android:layout_marginTop="100dp"
         app:cardElevation="20dp"
         android:id="@+id/makeTweetCard"
-        android:backgroundTint="#EE2DB6A9"
+        android:backgroundTint="@color/colorPrimaryLight"
         android:visibility="invisible">
 
         <LinearLayout
@@ -135,7 +135,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Tweet"
-                    android:backgroundTint="#29524B"
+                    android:backgroundTint="@color/colorPrimaryDark"
                     android:textColor="#FFFFFF"
                     android:layout_margin="10dp"
                     android:layout_alignParentRight="true"
@@ -165,7 +165,7 @@
         android:layout_marginTop="45dp"
         app:cardElevation="20dp"
         android:id="@+id/settingsCard"
-        android:backgroundTint="#EE2DB6A9"
+        android:backgroundTint="@color/colorPrimaryLight"
         android:visibility="invisible">
 
         <LinearLayout
@@ -194,7 +194,7 @@
                     android:layout_height="wrap_content"
                     android:text="Sign Out"
                     android:id="@+id/signOutButton"
-                    android:backgroundTint="#29524B"
+                    android:backgroundTint="@color/colorPrimaryDark"
                     android:textColor="#FFFFFF"
                     android:layout_margin="10dp"
                     android:layout_alignParentRight="true"
@@ -236,7 +236,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:scaleType="center"
-        app:backgroundTint="@color/cardview_light_background"
-        app:srcCompat="@drawable/feather" />
+        android:backgroundTint="@color/colorAccent"
+        android:src="@drawable/ic_write_tweet" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
