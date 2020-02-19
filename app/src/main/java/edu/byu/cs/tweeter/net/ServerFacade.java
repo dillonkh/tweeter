@@ -15,6 +15,8 @@ import edu.byu.cs.tweeter.net.request.FeedRequest;
 import edu.byu.cs.tweeter.net.request.FollowRequest;
 import edu.byu.cs.tweeter.net.request.FollowerRequest;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.net.request.LoginRequest;
+import edu.byu.cs.tweeter.net.request.SignUpRequest;
 import edu.byu.cs.tweeter.net.request.StoryRequest;
 import edu.byu.cs.tweeter.net.request.UnFollowRequest;
 import edu.byu.cs.tweeter.net.request.UserRequest;
@@ -22,6 +24,7 @@ import edu.byu.cs.tweeter.net.response.FeedResponse;
 import edu.byu.cs.tweeter.net.response.FollowResponse;
 import edu.byu.cs.tweeter.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.net.response.LoginResponse;
 import edu.byu.cs.tweeter.net.response.StoryResponse;
 import edu.byu.cs.tweeter.net.response.UnFollowResponse;
 import edu.byu.cs.tweeter.net.response.UserResponse;
@@ -31,6 +34,7 @@ public class ServerFacade {
     private static Map<User, List<User>> followeesByUser;
     private static Map<User, List<User>> followersByUser;
     private static Set<User> usersInDB;
+    private static User userSignedIn;
 
     public UserResponse getUser(UserRequest request) {
 
@@ -339,6 +343,34 @@ public class ServerFacade {
             }
         }
         return false;
+    }
+
+    public LoginResponse login(LoginRequest request) {
+        for (User u : usersInDB) {
+            if (u.getAlias().equals(request.getHandle())) {
+                userSignedIn = u;
+                return new LoginResponse(true, u, "FakeAuth");
+            }
+        }
+
+        return new LoginResponse(false, null, "");
+    }
+
+    public LoginResponse signUp(SignUpRequest request) {
+        if (usersInDB == null) {
+            usersInDB = new HashSet<>();
+        }
+        for (User u : usersInDB) {
+            if (u.getAlias().equals(request.getHandle())) {
+                return new LoginResponse(false, null, "");
+            }
+        }
+
+        User newUser = new User(request.getFirstName(),request.getLastName(),request.getHandle(),request.getImageURL());
+        userSignedIn = newUser;
+        usersInDB.add(newUser);
+
+        return new LoginResponse(true, newUser, "FakeAuth");
     }
 
     /**

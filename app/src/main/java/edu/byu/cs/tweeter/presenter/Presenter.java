@@ -17,6 +17,7 @@ public abstract class Presenter {
     public User getUserShown() {
         return UserService.getInstance().getUserShown();
     }
+
     public void setShownUser(User user) {
         UserService.getInstance().setCurrentUser(user);
     }
