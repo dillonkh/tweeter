@@ -23,9 +23,12 @@ import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.Tweet;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.request.FollowRequest;
+import edu.byu.cs.tweeter.net.request.TweetRequest;
 import edu.byu.cs.tweeter.net.request.UnFollowRequest;
+import edu.byu.cs.tweeter.net.response.TweetResponse;
 import edu.byu.cs.tweeter.presenter.MainPresenter;
 import edu.byu.cs.tweeter.view.asyncTasks.GetFollowTask;
+import edu.byu.cs.tweeter.view.asyncTasks.GetSendTweetTask;
 import edu.byu.cs.tweeter.view.asyncTasks.GetUnFollowTask;
 import edu.byu.cs.tweeter.view.asyncTasks.LoadImageTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
@@ -33,12 +36,13 @@ import edu.byu.cs.tweeter.view.main.feed.FeedFragment;
 import edu.byu.cs.tweeter.view.main.story.StoryFragment;
 
 
-public class UserViewActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View, GetFollowTask.GetFollowObserver, GetUnFollowTask.GetUnFollowObserver {
+public class UserViewActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View, GetFollowTask.GetFollowObserver, GetUnFollowTask.GetUnFollowObserver, GetSendTweetTask.GetTweetObserver {
 
     private MainPresenter presenter;
     private User user;
     private ImageView userImageView;
     private boolean following = true; // TODO: this should come from the user itself
+    private StoryFragment storyFragment;
 
 
     @Override
@@ -75,7 +79,7 @@ public class UserViewActivity extends AppCompatActivity implements LoadImageTask
         final Button followButton = findViewById(R.id.followButton);
         setBackgroundColorOfFollowButton(followButton);
 //
-        final StoryFragment storyFragment = sectionsPagerAdapter.getStoryFragment();
+        storyFragment = sectionsPagerAdapter.getStoryFragment();
         final FeedFragment feedFragment = sectionsPagerAdapter.getFeedFragment();
 
 //
@@ -155,11 +159,11 @@ public class UserViewActivity extends AppCompatActivity implements LoadImageTask
                 EditText text = (EditText)findViewById(R.id.tweetMessage);
                 String message = text.getText().toString();
                 Tweet tweet = new Tweet(presenter.getCurrentUser(), message, "make URL");
-                presenter.addTweet(tweet);
-                storyFragment.listChanged();
-                feedFragment.listChanged();
+
+                TweetRequest request = new TweetRequest(tweet);
+                GetSendTweetTask getSendTweetTask = new GetSendTweetTask(presenter, UserViewActivity.this);
+                getSendTweetTask.execute(request);
                 tweetCard.setVisibility(View.INVISIBLE);
-                Snackbar.make(view,"Tweet Sent!",Snackbar.LENGTH_SHORT).show();
             }
         });
 
@@ -211,6 +215,13 @@ public class UserViewActivity extends AppCompatActivity implements LoadImageTask
 
         if(drawables[0] != null) {
             userImageView.setImageDrawable(drawables[0]);
+        }
+    }
+
+    @Override
+    public void tweetResponded(TweetResponse tweetResponse) {
+        if (tweetResponse.isSent()) {
+            storyFragment.listChanged();
         }
     }
 }

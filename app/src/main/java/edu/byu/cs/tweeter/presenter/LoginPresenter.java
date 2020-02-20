@@ -30,6 +30,10 @@ public class LoginPresenter extends Presenter {
         this.view = view;
     }
 
+    public LoginPresenter() {
+        view = null;
+    }
+
     public LoginResponse login (LoginRequest request) {
         return LoginService.getInstance().login(request);
     }

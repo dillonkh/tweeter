@@ -23,6 +23,10 @@ public class StoryPresenter extends Presenter {
         this.view = view;
     }
 
+    public StoryPresenter() {
+        view = null;
+    }
+
     public StoryResponse getTweets(StoryRequest request) {
         return StoryService.getInstance().getTweets(request);
     }

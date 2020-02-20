@@ -17,6 +17,7 @@ import edu.byu.cs.tweeter.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.net.request.LoginRequest;
 import edu.byu.cs.tweeter.net.request.SignUpRequest;
 import edu.byu.cs.tweeter.net.request.StoryRequest;
+import edu.byu.cs.tweeter.net.request.TweetRequest;
 import edu.byu.cs.tweeter.net.request.UnFollowRequest;
 import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.FeedResponse;
@@ -25,6 +26,7 @@ import edu.byu.cs.tweeter.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.net.response.LoginResponse;
 import edu.byu.cs.tweeter.net.response.StoryResponse;
+import edu.byu.cs.tweeter.net.response.TweetResponse;
 import edu.byu.cs.tweeter.net.response.UnFollowResponse;
 import edu.byu.cs.tweeter.net.response.UserResponse;
 
@@ -153,7 +155,15 @@ public class ServerFacade {
 
         List<Tweet> responseTweets = new ArrayList<>(request.getLimit());
         List<Tweet> allTweets = new ArrayList<>();
-        allTweets = request.getUser().getTweets();
+        UserResponse r = getUser(new UserRequest(request.getUser(), request.getUser().getAlias()));
+        if (r == null) {
+            return new StoryResponse("Error");
+        }
+        User u = r.getUser();
+        if (u == null) {
+            return new StoryResponse("Error");
+        }
+        allTweets = u.getTweets();
 
         boolean hasMorePages = false;
 
@@ -174,10 +184,20 @@ public class ServerFacade {
 
     }
 
-    public void addTweet(Tweet tweet) {
+    public TweetResponse addTweet(TweetRequest request) {
 
-        User user = tweet.getUser();
-        user.addTweet(tweet);
+        if (usersInDB == null) {
+            usersInDB = new HashSet<>();
+        }
+
+        for (User u : usersInDB) {
+            if (u.equals(request.getTweet().getUser())) {
+                u.addTweet(request.getTweet());
+                return new TweetResponse(true);
+            }
+        }
+
+        return new TweetResponse(false);
     }
 
     private int getFolloweesStartingIndex(User lastFollowee, List<User> allFollowees) {
@@ -225,7 +245,7 @@ public class ServerFacade {
 
         followeesByUser = new HashMap<>();
 
-        List<User> randomUsers = getUserGenerator().generateUsers(1);
+        List<User> randomUsers = getUserGenerator().generateUsers(3);
 
         followeesByUser.put(user,randomUsers);
 
@@ -257,7 +277,7 @@ public class ServerFacade {
 
         followersByUser = new HashMap<>();
 
-        List<User> randomUsers = getUserGenerator().generateUsers(1);
+        List<User> randomUsers = getUserGenerator().generateUsers(3);
 
         followersByUser.put(user,randomUsers);
 
@@ -288,13 +308,18 @@ public class ServerFacade {
 //        1. add usertofollow to followees under userlogged in
 //        2. add userloggedin to followers under usertofollow.
 
-
+        if (followeesByUser == null) {
+            initializeFollowees(request.getUserLoggedIn());
+        }
+        if (followersByUser == null) {
+            initializeFollowers(request.getUserLoggedIn());
+        }
         // STEP 1 /////
         List<User> temp = followeesByUser.get(request.getUserLoggedIn());
-        temp.add(request.getUserToFollow());
         if (temp == null) {
             temp = new ArrayList<>();
         }
+        temp.add(request.getUserToFollow());
         followeesByUser.put(request.getUserLoggedIn(), temp);
 
         // STEP 2 /////
@@ -345,6 +370,9 @@ public class ServerFacade {
     }
 
     public LoginResponse login(LoginRequest request) {
+        if (usersInDB == null) {
+            return new LoginResponse(false, null, "");
+        }
         for (User u : usersInDB) {
             if (u.getAlias().equals(request.getHandle())) {
                 userSignedIn = u;
@@ -370,6 +398,22 @@ public class ServerFacade {
         usersInDB.add(newUser);
 
         return new LoginResponse(true, newUser, "FakeAuth");
+    }
+
+    public void clearAll() {
+        if (followeesByUser != null) {
+            followeesByUser.clear();
+            followeesByUser = null;
+        }
+        if (followersByUser != null) {
+            followersByUser.clear();
+            followersByUser = null;
+        }
+        if (usersInDB != null) {
+            usersInDB.clear();
+            usersInDB = null;
+        }
+
     }
 
     /**

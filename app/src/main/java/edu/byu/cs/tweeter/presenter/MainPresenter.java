@@ -5,9 +5,11 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.services.FollowService;
 import edu.byu.cs.tweeter.model.services.StoryService;
 import edu.byu.cs.tweeter.net.request.FollowRequest;
+import edu.byu.cs.tweeter.net.request.TweetRequest;
 import edu.byu.cs.tweeter.net.request.UnFollowRequest;
 import edu.byu.cs.tweeter.net.request.UserRequest;
 import edu.byu.cs.tweeter.net.response.FollowResponse;
+import edu.byu.cs.tweeter.net.response.TweetResponse;
 import edu.byu.cs.tweeter.net.response.UnFollowResponse;
 import edu.byu.cs.tweeter.net.response.UserResponse;
 
@@ -31,8 +33,12 @@ public class MainPresenter extends Presenter {
         this.view = view;
     }
 
-    public void addTweet(Tweet tweet) {
-        StoryService.getInstance().addTweet(tweet);
+    public MainPresenter() {
+        view = null;
+    }
+
+    public TweetResponse addTweet(TweetRequest request) {
+        return StoryService.getInstance().addTweet(request);
     }
 
     public FollowResponse follow(FollowRequest request) {

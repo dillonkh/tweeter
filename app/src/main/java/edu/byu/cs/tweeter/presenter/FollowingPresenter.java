@@ -26,6 +26,10 @@ public class FollowingPresenter extends Presenter {
         this.view = view;
     }
 
+    public FollowingPresenter() {
+        view = null;
+    }
+
     public FollowingResponse getFollowing(FollowingRequest request) {
         return FollowingService.getInstance().getFollowees(request);
     }

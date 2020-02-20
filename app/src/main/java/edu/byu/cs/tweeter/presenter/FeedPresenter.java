@@ -22,6 +22,10 @@ public class FeedPresenter extends Presenter {
         this.view = view;
     }
 
+    public FeedPresenter() {
+        view = null;
+    }
+
     public FeedResponse getTweets(FeedRequest request) {
         return FeedService.getInstance().getFeed(request);
     }

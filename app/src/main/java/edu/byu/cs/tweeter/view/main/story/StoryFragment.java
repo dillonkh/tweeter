@@ -72,8 +72,9 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
 
     @Override
     public void listChanged() {
-        storyRecyclerViewAdapter.notifyThereAreMoreItems();
-        storyRecyclerViewAdapter.notifyDataSetChanged();
+//        storyRecyclerViewAdapter.notifyThereAreMoreItems();
+//        storyRecyclerViewAdapter.notifyDataSetChanged();
+        storyRecyclerViewAdapter.loadMoreItems();
     }
 
     public void scrollToTop(){
