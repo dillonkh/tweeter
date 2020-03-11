@@ -2,14 +2,10 @@ package edu.byu.cs.tweeter.model.services;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.ServerFacade;
-import edu.byu.cs.tweeter.net.request.FeedRequest;
 import edu.byu.cs.tweeter.net.request.FollowRequest;
 import edu.byu.cs.tweeter.net.request.UnFollowRequest;
-import edu.byu.cs.tweeter.net.request.UserRequest;
-import edu.byu.cs.tweeter.net.response.FeedResponse;
 import edu.byu.cs.tweeter.net.response.FollowResponse;
 import edu.byu.cs.tweeter.net.response.UnFollowResponse;
-import edu.byu.cs.tweeter.net.response.UserResponse;
 
 public class FollowService {
 

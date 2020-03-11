@@ -1,42 +1,30 @@
 package edu.byu.cs.tweeter.view.main;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
-import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.Tweet;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.request.TweetRequest;
 import edu.byu.cs.tweeter.net.request.UserRequest;
-import edu.byu.cs.tweeter.net.response.StoryResponse;
 import edu.byu.cs.tweeter.net.response.TweetResponse;
 import edu.byu.cs.tweeter.presenter.MainPresenter;
-import edu.byu.cs.tweeter.presenter.StoryPresenter;
 import edu.byu.cs.tweeter.view.asyncTasks.GetSendTweetTask;
-import edu.byu.cs.tweeter.view.asyncTasks.GetStoryTask;
 import edu.byu.cs.tweeter.view.asyncTasks.GetUserTask;
 import edu.byu.cs.tweeter.view.asyncTasks.LoadImageTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
